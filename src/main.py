@@ -1,5 +1,8 @@
+import tkinter as tk
 from description import Description
 from solver import Solver
+from ui.paintboard import PaintBoard
+
 
 if __name__ == "__main__":
     description = Description()
@@ -9,5 +12,9 @@ if __name__ == "__main__":
     sol = solver.solve()
     if sol is None:
         print('No solution')
-
     print(sol)
+
+    root = tk.Tk()
+    root.title('Nonogram!')
+    paintboard = PaintBoard(root, picture=sol.pixels)
+    root.mainloop()
