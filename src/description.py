@@ -35,5 +35,4 @@ class Description:
         self.column_descriptions = [self.parse_row_desc(line) for line in col_lines]
 
     def parse_row_desc(self, s):
-        print(s)
         return [int(num) for num in s.split(',')]
