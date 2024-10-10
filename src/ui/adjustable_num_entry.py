@@ -1,64 +1,51 @@
 import tkinter as tk
-from num_only_entry import Num_Only_Entry
+from tkinter import ttk
 
 
 class Adjustable_Num_Entry(tk.Frame):
-    def __init__(self, master=None, max_value=20, font_size=16, **kwargs):
-        # Call the parent constructor with the given arguments
+    def __init__(self, master=None, max_value=20, entry_width=3, **kwargs):
+        # Initialize the parent Frame
         super().__init__(master, **kwargs)
         self.max_value = max_value
 
-        # Create the Entry widget for numbers only
-        self.number_entry = Num_Only_Entry(self)
-        self.number_entry.grid(row=0, column=0, padx=0, sticky='ew')  # Stretch vertically
-
-        # Create a frame to hold the increment and decrement buttons
-        button_frame = tk.Frame(self, width=20)
-        button_frame.grid(row=0, column=1, sticky='ns')  # Stretch vertically to match entry height
-        button_frame.pack_propagate(False)  # Prevent frame from resizing to fit its content
-
-        # Create the increment and decrement buttons with custom font size
-        self.increment_button = tk.Button(
-            button_frame,
-            text="+",
-            command=self.increment,
-            font=("Helvetica", font_size),
-            width=1
+        # Create a style for the Spinbox using ttk
+        style = ttk.Style(self)
+        style.configure(
+            "Custom.TSpinbox",
+            arrowsize=15,  # Adjust the size of the arrows if desired
+            background="gray",  # Background for the entry and arrows
+            foreground="white",  # Text color
+            fieldbackground="lightgray"  # Background of the entry area (field)
         )
-        self.increment_button.grid(row=0, column=0, sticky='ew')  # Place in the first column
 
-        self.decrement_button = tk.Button(
-            button_frame,
-            text="-",
-            command=self.decrement,
-            font=("Helvetica", font_size),
-            width=1
+        # Create a validation function for numeric input
+        vcmd = (self.register(self.validate_numeric_input), '%P')
+
+        # Create the Spinbox using ttk and apply the custom style
+        self.spinbox = ttk.Spinbox(
+            self,
+            from_=1,
+            to=self.max_value,
+            increment=1,
+            width=entry_width,
+            style="Custom.TSpinbox",  # Use the custom style
+            validate='key',  # Trigger validation on keypress
+            validatecommand=vcmd  # Use the validation function
         )
-        self.decrement_button.grid(row=0, column=1, sticky='ew')  # Place in the second column
+        self.spinbox.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+        self.spinbox.set(1)
 
-        # Configure column weights to allow resizing
-        self.grid_columnconfigure(0, weight=1)  # Allow the entry column to expand
-        self.grid_columnconfigure(1, weight=0)  # Keep the button frame's width fixed
+    def validate_numeric_input(self, new_value):
+        # Allow only empty input or digits within the specified range
+        if new_value.isdigit() or new_value == "":
+            if new_value == "":
+                return True
+            if 1 <= int(new_value) <= self.max_value:
+                return True
+        return False
 
-    def get_value(self):
-        # Return the current value as an integer, or 0 if empty or invalid
-        try:
-            return int(self.number_entry.get())
-        except ValueError:
-            return 0
-
-    def set_value(self, value):
-        # Set the value of the entry, ensuring it stays within the range
-        if 0 <= value <= self.max_value:
-            self.number_entry.delete(0, tk.END)
-            self.number_entry.insert(0, str(value))
-
-    def increment(self):
-        # Increase the value by 1
-        current_value = self.get_value()
-        self.set_value(min(current_value + 1, self.max_value))
-
-    def decrement(self):
-        # Decrease the value by 1
-        current_value = self.get_value()
-        self.set_value(max(current_value - 1, 0))
+    # Function to get the value from the Spinbox
+    def get_spinbox_value(self):
+        value = self.spinbox.get()
+        print(f"Spinbox Value: {value}")
+        return value
