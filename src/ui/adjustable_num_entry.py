@@ -4,7 +4,6 @@ from tkinter import ttk
 
 class Adjustable_Num_Entry(tk.Frame):
     def __init__(self, master=None, max_value=20, entry_width=3, **kwargs):
-        # Initialize the parent Frame
         super().__init__(master, **kwargs)
         self.max_value = max_value
 
