@@ -3,11 +3,14 @@ from adjustable_num_entry import Adjustable_Num_Entry
 
 
 class Adjustable_Matrix(tk.Frame):
-    def __init__(self, master=None, rows=4, columns=4, **kwargs):
+    def __init__(self, master=None, rows=4, columns=4, entry_width=5, matrix_padx=0, matrix_pady=0, **kwargs):
         super().__init__(master, **kwargs)
         self.rows = rows
         self.columns = columns
         self.matrix = []
+        self.entry_width = entry_width
+        self.matrix_padx = matrix_padx
+        self.matrix_pady = matrix_pady
 
         # Frame for the buttons
         self.buttons_frame = tk.Frame(self)
@@ -15,16 +18,16 @@ class Adjustable_Matrix(tk.Frame):
 
         # Store references to the buttons for adding/removing rows and columns
         self.add_row_button = tk.Button(self.buttons_frame, text="+ Row", command=self.add_row)
-        self.add_row_button.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+        self.add_row_button.grid(row=0, column=0, padx=0, pady=5, sticky='ew')
 
         self.remove_row_button = tk.Button(self.buttons_frame, text="- Row", command=self.remove_row)
-        self.remove_row_button.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
+        self.remove_row_button.grid(row=0, column=1, padx=0, pady=5, sticky='ew')
 
         self.add_column_button = tk.Button(self.buttons_frame, text="+ Column", command=self.add_column)
-        self.add_column_button.grid(row=0, column=2, padx=5, pady=5, sticky='ew')
+        self.add_column_button.grid(row=0, column=2, padx=0, pady=5, sticky='ew')
 
         self.remove_column_button = tk.Button(self.buttons_frame, text="- Column", command=self.remove_column)
-        self.remove_column_button.grid(row=0, column=3, padx=5, pady=5, sticky='ew')
+        self.remove_column_button.grid(row=0, column=3, padx=0, pady=5, sticky='ew')
 
         # Frame for the matrix of entries
         self.matrix_frame = tk.Frame(self)
@@ -34,8 +37,8 @@ class Adjustable_Matrix(tk.Frame):
         for i in range(self.rows):
             row = []
             for j in range(self.columns):
-                entry = Adjustable_Num_Entry(self.matrix_frame, max_value=20, entry_width=5)
-                entry.grid(row=i, column=j, padx=2, pady=2)
+                entry = Adjustable_Num_Entry(self.matrix_frame, max_value=20, entry_width=entry_width)
+                entry.grid(row=i, column=j, padx=matrix_padx, pady=matrix_pady)
                 row.append(entry)
             self.matrix.append(row)
 
@@ -47,8 +50,8 @@ class Adjustable_Matrix(tk.Frame):
         new_row = []
         row_index = len(self.matrix)
         for col_index in range(self.columns):
-            entry = Adjustable_Num_Entry(self.matrix_frame, max_value=20, entry_width=5)
-            entry.grid(row=row_index, column=col_index, padx=2, pady=2)
+            entry = Adjustable_Num_Entry(self.matrix_frame, max_value=20, entry_width=self.entry_width)
+            entry.grid(row=row_index, column=col_index, padx=self.matrix_padx, pady=self.matrix_pady)
             new_row.append(entry)
         self.matrix.append(new_row)
         self.rows += 1
@@ -58,8 +61,8 @@ class Adjustable_Matrix(tk.Frame):
         """Add a new column of Adjustable_Num_Entry widgets."""
         col_index = self.columns
         for row_index, row in enumerate(self.matrix):
-            entry = Adjustable_Num_Entry(self.matrix_frame, max_value=20, entry_width=5)
-            entry.grid(row=row_index, column=col_index, padx=2, pady=2)
+            entry = Adjustable_Num_Entry(self.matrix_frame, max_value=20, entry_width=self.entry_width)
+            entry.grid(row=row_index, column=col_index, padx=self.matrix_padx, pady=self.matrix_pady)
             row.append(entry)
         self.columns += 1
         self.update_buttons()

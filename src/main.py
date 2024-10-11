@@ -17,4 +17,5 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Nonogram!')
     paintboard = PaintBoard(root, picture=sol.pixels)
+    paintboard.pack()
     root.mainloop()

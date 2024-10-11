@@ -2,11 +2,14 @@ import tkinter as tk
 import numpy as np
 
 
-class PaintBoard:
-    def __init__(self, parent, picture=None, pixel_size=20):
-        self.parent = parent
+class PaintBoard(tk.Frame):
+    def __init__(self, master=None, picture=None, pixel_size=20, **kwargs):
+        super().__init__(master, **kwargs)
         self.pixel_size = pixel_size
-        self.grid_size = max(len(picture), len(picture[0]))
+        if picture:
+            self.grid_size = max(len(picture), len(picture[0]))
+        else:
+            self.grid_size = 18
         self.default_pixel_color = '#FFFFFF'
         self.default_pixel_rgb = list(self.hex_to_rgb(self.default_pixel_color))
         self.default_grid_color = '#D3D3D3'
@@ -16,12 +19,11 @@ class PaintBoard:
         self.pixel_ids = [[None for _ in range(self.grid_size)]
                           for _ in range(self.grid_size)]
 
-        self.canvas = tk.Canvas(self.parent,
+        self.canvas = tk.Canvas(self,
                                 width=self.pixel_size * self.grid_size,
                                 height=self.pixel_size * self.grid_size,
                                 bg=self.default_pixel_color)
         # self.canvas.bind('<Button-1>', self.handle_click)
-        self.canvas.pack()
 
         self.draw_grid()
 
@@ -30,6 +32,7 @@ class PaintBoard:
             self.draw_picture()
 
         self.draw_bold_lines()
+        self.canvas.grid(row=0, column=0, sticky='nsew')
 
     def draw_grid(self):
         for i in range(self.grid_size):
@@ -48,7 +51,7 @@ class PaintBoard:
             self.canvas.create_line(mid_x, 0, mid_x, self.pixel_size * self.grid_size, width=2, fill='#00FF00')
             # Horizontal line
             self.canvas.create_line(0, mid_y, self.pixel_size * self.grid_size, mid_y, width=2, fill='#00FF00')
-        elif self.grid_size == 12 or self.grid_size == 15:
+        elif self.grid_size == 12 or self.grid_size == 15 or self.grid_size == 18:
             cell_width = self.grid_size * self.pixel_size // 3
             cell_height = self.grid_size * self.pixel_size // 3
             # Draw the vertical lines
@@ -58,7 +61,6 @@ class PaintBoard:
             # Draw the horizontal lines
             self.canvas.create_line(0, cell_height, self.grid_size * self.pixel_size, cell_height, width=2, fill='#00FF00')
             self.canvas.create_line(0, 2 * cell_height, self.grid_size * self.pixel_size, 2 * cell_height, width=2, fill='#00FF00')
-
 
     def draw_picture(self):
         for x in range(len(self.picture)):
@@ -112,10 +114,8 @@ class PaintBoard:
         return '#{:02X}{:02X}{:02X}'.format(*list(rgb_lst))
 
 
-'''
 if __name__ == '__main__':
     root = tk.Tk()
     root.title('Nonogram!')
     paintboard = PaintBoard(root)
     root.mainloop()
-'''

@@ -31,7 +31,7 @@ class Adjustable_Num_Entry(tk.Frame):
             validate='key',  # Trigger validation on keypress
             validatecommand=vcmd  # Use the validation function
         )
-        self.spinbox.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+        self.spinbox.grid(row=0, column=0, padx=0, pady=0, sticky='ew')
         self.spinbox.set(1)
 
     def validate_numeric_input(self, new_value):
