@@ -1,12 +1,15 @@
 import tkinter as tk
 from adjustable_num_entry import Adjustable_Num_Entry
+from matrix_subject import Matrix_Subject
 
 
-class Adjustable_Matrix(tk.Frame):
+class Adjustable_Matrix(tk.Frame, Matrix_Subject):
     def __init__(self, master=None,
                  rows=4, columns=4, entry_width=5,
-                 matrix_padx=0, matrix_pady=0, max_value=999, **kwargs):
+                 matrix_padx=0, matrix_pady=0, max_value=999,
+                 notify_on_row_change=False, **kwargs):
         super().__init__(master, **kwargs)
+        self._observers = []
         self.rows = rows
         self.columns = columns
         self.matrix = []
@@ -14,6 +17,7 @@ class Adjustable_Matrix(tk.Frame):
         self.matrix_padx = matrix_padx
         self.matrix_pady = matrix_pady
         self.max_value = max_value
+        self.notify_on_row_change = notify_on_row_change
 
         # Frame for the buttons
         self.buttons_frame = tk.Frame(self)
@@ -91,6 +95,11 @@ class Adjustable_Matrix(tk.Frame):
     def update_buttons(self):
         """Update the position of the add/remove row and column buttons."""
         # Enable or disable the remove buttons based on the matrix size
+        if self.notify_on_row_change:
+            self.update_observer_axis('col', self.rows)
+        else:
+            self.update_observer_axis('row', self.columns)
+
         if self.rows <= 1:
             self.remove_row_button.config(state='disabled')
         else:

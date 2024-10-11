@@ -1,8 +1,9 @@
 import tkinter as tk
 import numpy as np
+from matrix_observer import Matrix_Observer
 
 
-class PaintBoard(tk.Frame):
+class PaintBoard(tk.Frame, Matrix_Observer):
     def __init__(self, master=None, picture=None, pixel_size=20, **kwargs):
         super().__init__(master, **kwargs)
         self.pixel_size = pixel_size
@@ -10,7 +11,7 @@ class PaintBoard(tk.Frame):
             self.grid_width = len(picture)
             self.grid_height = len(picture[0])
         else:
-            self.grid_width = 15
+            self.grid_width = 10
             self.grid_height = 10
 
         self.default_pixel_color = '#FFFFFF'
@@ -137,6 +138,12 @@ class PaintBoard(tk.Frame):
 
         self.draw_bold_lines()
         self.canvas.grid(row=0, column=0, sticky='nsew')
+
+    def update_row(self, newlen):
+        self.adjust_size(newlen, self.grid_height)
+
+    def update_column(self, newlen):
+        self.adjust_size(self.grid_width, newlen)
 
 
 if __name__ == '__main__':
