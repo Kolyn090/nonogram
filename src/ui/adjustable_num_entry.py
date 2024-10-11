@@ -3,8 +3,9 @@ from tkinter import ttk
 
 
 class Adjustable_Num_Entry(tk.Frame):
-    def __init__(self, master=None, max_value=20, entry_width=3, **kwargs):
+    def __init__(self, master=None, min_value=0, max_value=20, entry_width=3, **kwargs):
         super().__init__(master, **kwargs)
+        self.min_value = min_value
         self.max_value = max_value
 
         # Create a style for the Spinbox using ttk
@@ -23,7 +24,7 @@ class Adjustable_Num_Entry(tk.Frame):
         # Create the Spinbox using ttk and apply the custom style
         self.spinbox = ttk.Spinbox(
             self,
-            from_=1,
+            from_=min_value,
             to=self.max_value,
             increment=1,
             width=entry_width,
@@ -32,19 +33,18 @@ class Adjustable_Num_Entry(tk.Frame):
             validatecommand=vcmd  # Use the validation function
         )
         self.spinbox.grid(row=0, column=0, padx=0, pady=0, sticky='ew')
-        self.spinbox.set(1)
+        self.spinbox.set(self.min_value)
 
     def validate_numeric_input(self, new_value):
         # Allow only empty input or digits within the specified range
         if new_value.isdigit() or new_value == "":
             if new_value == "":
                 return True
-            if 1 <= int(new_value) <= self.max_value:
+            if self.min_value <= int(new_value) <= self.max_value:
                 return True
         return False
 
     # Function to get the value from the Spinbox
     def get_spinbox_value(self):
         value = self.spinbox.get()
-        print(f"Spinbox Value: {value}")
-        return value
+        return int(value)

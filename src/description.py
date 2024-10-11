@@ -34,5 +34,19 @@ class Description:
         self.row_descriptions = [self.parse_row_desc(line) for line in row_lines]
         self.column_descriptions = [self.parse_row_desc(line) for line in col_lines]
 
+    def from_matrices(self, row_matrix, col_matrix):
+        # Zeroes in vectors will be removed
+        self.row_descriptions = self.remove_zeros_from_vectors(row_matrix)
+        self.column_descriptions = self.remove_zeros_from_vectors(col_matrix)
+        self.width = len(row_matrix)
+        self.height = len(col_matrix)
+
+    def remove_zeros_from_vectors(self, vector_lst):
+        result = []
+        for vector in vector_lst:
+            result.append([component for component in vector if component != 0])
+
+        return result
+
     def parse_row_desc(self, s):
         return [int(num) for num in s.split(',')]

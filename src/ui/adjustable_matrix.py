@@ -38,7 +38,7 @@ class Adjustable_Matrix(tk.Frame, Matrix_Subject):
 
         # Frame for the matrix of entries
         self.matrix_frame = tk.Frame(self)
-        self.matrix_frame.grid(row=1, column=0, sticky='nsew')
+        self.matrix_frame.grid(row=1, column=0, sticky='es')
 
         # Initialize the matrix with given rows and columns
         for i in range(self.rows):
@@ -109,6 +109,22 @@ class Adjustable_Matrix(tk.Frame, Matrix_Subject):
             self.remove_column_button.config(state='disabled')
         else:
             self.remove_column_button.config(state='normal')
+
+    def get_vectors(self):
+        result = []
+        if self.notify_on_row_change:
+            for i in range(self.rows):
+                vector = []
+                for j in range(self.columns):
+                    vector.append(self.matrix[i][j].get_spinbox_value())
+                result.append(vector)
+        else:
+            for i in range(self.columns):
+                vector = []
+                for j in range(self.rows):
+                    vector.append(self.matrix[j][i].get_spinbox_value())
+                result.append(vector)
+        return result
 
 
 if __name__ == '__main__':

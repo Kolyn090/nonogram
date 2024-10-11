@@ -63,11 +63,19 @@ class PaintBoard(tk.Frame, Matrix_Observer):
 
         elif self.grid_width in [12, 15, 18]:
             cell_width = self.grid_width * self.pixel_size // 3
-
             # Draw the vertical lines at 1/3 and 2/3 of the width
             self.canvas.create_line(cell_width, 0, cell_width, self.pixel_size * self.grid_height, width=2,
                                     fill='#00FF00')
             self.canvas.create_line(2 * cell_width, 0, 2 * cell_width, self.pixel_size * self.grid_height, width=2,
+                                    fill='#00FF00')
+        elif self.grid_width in [20]:
+            cell_width = self.grid_width * self.pixel_size // 4
+            # Draw the vertical lines at 1/4 and 2/4 and 3/4 of the width
+            self.canvas.create_line(cell_width, 0, cell_width, self.pixel_size * self.grid_height, width=2,
+                                    fill='#00FF00')
+            self.canvas.create_line(2 * cell_width, 0, 2 * cell_width, self.pixel_size * self.grid_height, width=2,
+                                    fill='#00FF00')
+            self.canvas.create_line(3 * cell_width, 0, 3 * cell_width, self.pixel_size * self.grid_height, width=2,
                                     fill='#00FF00')
 
         if self.grid_height in [8, 10]:
@@ -80,6 +88,15 @@ class PaintBoard(tk.Frame, Matrix_Observer):
             self.canvas.create_line(0, cell_height, self.pixel_size * self.grid_width, cell_height, width=2,
                                     fill='#00FF00')
             self.canvas.create_line(0, 2 * cell_height, self.pixel_size * self.grid_width, 2 * cell_height, width=2,
+                                    fill='#00FF00')
+        elif self.grid_height in [20]:
+            cell_height = self.grid_height * self.pixel_size // 4
+            # Draw the horizontal lines at 1/4 and 2/4 and 3/4 of the height
+            self.canvas.create_line(0, cell_height, self.pixel_size * self.grid_width, cell_height, width=2,
+                                    fill='#00FF00')
+            self.canvas.create_line(0, 2 * cell_height, self.pixel_size * self.grid_width, 2 * cell_height, width=2,
+                                    fill='#00FF00')
+            self.canvas.create_line(0, 3 * cell_height, self.pixel_size * self.grid_width, 3 * cell_height, width=2,
                                     fill='#00FF00')
 
     def paint_pixel(self, row, col):
@@ -138,6 +155,14 @@ class PaintBoard(tk.Frame, Matrix_Observer):
 
         self.draw_bold_lines()
         self.canvas.grid(row=0, column=0, sticky='nsew')
+
+    def render_picture(self, picture):
+        if picture:
+            self.picture = picture
+            self.update_row(len(picture))
+            self.update_column(len(picture[0]))
+            self.draw_picture()
+            self.draw_bold_lines()
 
     def update_row(self, newlen):
         self.adjust_size(newlen, self.grid_height)
