@@ -23,8 +23,20 @@ class UI(tk.Frame):
         self.rows.register_observer(self.paintboard)
         self.cols.register_observer(self.paintboard)
 
-        solve_button = tk.Button(self, text="Solve", command=self.solve)
-        solve_button.grid(row=0, column=2)
+        button_frame = tk.Frame(self)
+        button_frame.grid(row=0, column=2)
+
+        solve_button = tk.Button(button_frame, text="Solve", command=self.solve)
+        solve_button.grid(row=0, column=0)
+
+        reset_button = tk.Button(button_frame, text="Reset", command=self.reset)
+        reset_button.grid(row=1, column=0)
+
+        export_button = tk.Button(button_frame, text="Export", command=self.export_file)
+        export_button.grid(row=2, column=0)
+
+        import_button = tk.Button(button_frame, text="Import", command=self.import_file)
+        import_button.grid(row=3, column=0)
 
     def solve(self):
         description = Description()
@@ -37,6 +49,28 @@ class UI(tk.Frame):
         else:
             self.paintboard.render_picture(sol.pixels)
 
+    def reset(self):
+        self.rows.set_to_zero()
+        self.cols.set_to_zero()
+        self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
+
+    def export_file(self):
+        save_content = [f'width {self.rows.rows}', f'height {self.cols.columns}\n\nrows']
+        for vector in self.rows.get_vectors():
+            save_content.append(','.join([str(component) for component in vector]))
+        save_content.append('\ncolumns')
+        for vector in self.cols.get_vectors():
+            save_content.append(','.join([str(component) for component in vector]))
+        with open('../save.non', 'w') as file:
+            file.writelines([f'{line}\n' for line in save_content])
+
+    def import_file(self):
+        description = Description()
+        description.from_file('../save.non')
+        self.rows.load(description.row_descriptions)
+        self.cols.load(description.column_descriptions)
+        self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
+
 
 if __name__ == '__main__':
     # Create the main window
@@ -44,6 +78,7 @@ if __name__ == '__main__':
     root.title("Nonogram!")
     scrollable_window = Scrollable_Window(root)
     scrollable_window.pack(fill="both", expand=True)
+    scrollable_window.canvas.config(width=1000, height=1000)
 
     ui = UI(scrollable_window.scrollable_frame)
     ui.pack()

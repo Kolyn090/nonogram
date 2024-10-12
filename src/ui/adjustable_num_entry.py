@@ -48,3 +48,6 @@ class Adjustable_Num_Entry(tk.Frame):
     def get_spinbox_value(self):
         value = self.spinbox.get()
         return int(value)
+
+    def set_to(self, num):
+        self.spinbox.set(num)

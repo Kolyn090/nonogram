@@ -126,6 +126,19 @@ class Adjustable_Matrix(tk.Frame, Matrix_Subject):
                 result.append(vector)
         return result
 
+    def set_to_zero(self):
+        for i in range(self.rows):
+            for j in range(self.columns):
+                self.matrix[i][j].set_to(0)
+
+    def load(self, matrix):
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.notify_on_row_change:
+                    self.matrix[i][j].set_to(matrix[i][j])
+                else:
+                    self.matrix[i][j].set_to(matrix[j][i])
+
 
 if __name__ == '__main__':
     # Create the main window
