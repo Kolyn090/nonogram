@@ -132,6 +132,25 @@ class Adjustable_Matrix(tk.Frame, Matrix_Subject):
                 self.matrix[i][j].set_to(0)
 
     def load(self, matrix):
+        if self.notify_on_row_change:
+            while len(self.matrix) < len(matrix):
+                self.add_row()
+            while len(self.matrix) > len(matrix):
+                self.remove_row()
+            while len(self.matrix[0]) < len(matrix[0]):
+                self.add_column()
+            while len(self.matrix[0]) > len(matrix[0]):
+                self.remove_column()
+        else:
+            while len(self.matrix) < len(matrix[0]):
+                self.add_row()
+            while len(self.matrix) > len(matrix[0]):
+                self.remove_row()
+            while len(self.matrix[0]) < len(matrix):
+                self.add_column()
+            while len(self.matrix[0]) > len(matrix):
+                self.remove_column()
+
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.notify_on_row_change:
