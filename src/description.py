@@ -33,6 +33,8 @@ class Description:
         col_lines = [item for item in lines[idx_of_col+1:] if item]
         self.row_descriptions = [self.parse_row_desc(line) for line in row_lines]
         self.column_descriptions = [self.parse_row_desc(line) for line in col_lines]
+        self.row_descriptions = self.remove_zeros_from_vectors(self.row_descriptions)
+        self.column_descriptions = self.remove_zeros_from_vectors(self.column_descriptions)
 
     def from_matrices(self, row_matrix, col_matrix):
         # Zeroes in vectors will be removed
