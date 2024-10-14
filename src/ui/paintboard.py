@@ -100,11 +100,11 @@ class PaintBoard(tk.Frame, Matrix_Observer):
                                     fill='#00FF00')
 
     def paint_pixel(self, row, col):
-        x1 = col * self.pixel_size
-        y1 = row * self.pixel_size
+        x1 = row * self.pixel_size
+        y1 = col * self.pixel_size
         x2 = x1 + self.pixel_size
         y2 = y1 + self.pixel_size
-        color = self.rgb_to_hex(self.pixels[row, col])
+        color = self.rgb_to_hex(self.pixels[row][col])
 
         # If a pixel is already drawn, delete it before creating a new one
         if self.pixel_ids[row][col] is not None:
@@ -116,8 +116,8 @@ class PaintBoard(tk.Frame, Matrix_Observer):
         for x in range(len(self.picture)):
             for y in range(len(self.picture[x])):
                 if self.picture[x][y]:
-                    self.pixels[y, x] = list(self.hex_to_rgb('#000000'))
-                    self.paint_pixel(y, x)
+                    self.pixels[x][y] = list(self.hex_to_rgb('#000000'))
+                    self.paint_pixel(x, y)
 
     def hex_to_rgb(self, hexcode):
         # Remove the hash (#) if it exists
@@ -143,8 +143,8 @@ class PaintBoard(tk.Frame, Matrix_Observer):
 
         self.pixels = np.zeros([self.grid_width, self.grid_height, 3], dtype=np.uint8)
         # Track whether a grid has color
-        self.pixel_ids = [[None for _ in range(self.grid_width)]
-                          for _ in range(self.grid_height)]
+        self.pixel_ids = [[None for _ in range(self.grid_height)]
+                          for _ in range(self.grid_width)]
 
         self.canvas.destroy()
         self.canvas = tk.Canvas(self,

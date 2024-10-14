@@ -54,17 +54,17 @@ class Solver:
 
         changed = False
         for x in range(self.cur_row_length):
-            if row[x] == CellState.NOT_DECIDED:
+            if self.cur_row[x] == CellState.NOT_DECIDED:
                 if self.cur_row_filled.get_bit(x):
-                    row[x] = CellState.FILLED
+                    self.cur_row[x] = CellState.FILLED
                     changed = True
                 elif not self.cur_row_not_empty.get_bit(x):
-                    row[x] = CellState.EMPTY
+                    self.cur_row[x] = CellState.EMPTY
                     changed = True
 
         if changed and self.verbose:
             sb = 'Changed to: '
-            sb += ''.join([str(cs.value) for cs in row])
+            sb += ''.join([str(cs.value) for cs in self.cur_row])
             print(sb)
 
         return False
@@ -113,11 +113,14 @@ class Solver:
         return feasible
 
     def solve_step(self):
+        def remove_zero_from_list(lst):
+            return [item for item in lst if item != 0]
+
         changed = False
         # Check all columns
         for x in range(self.width):
             col = self.cells[x]
-            if self.solve_row(col, self.descr.get_col_description(x)):
+            if self.solve_row(col, remove_zero_from_list(self.descr.get_col_description(x))):
                 changed = True
                 for y in range(self.height):
                     self.cells[x][y] = col[y]
@@ -130,7 +133,7 @@ class Solver:
             for x in range(self.width):
                 row.append(self.cells[x][y])
 
-            if self.solve_row(row, self.descr.get_row_description(y)):
+            if self.solve_row(row, remove_zero_from_list(self.descr.get_row_description(y))):
                 changed = True
                 for x in range(self.width):
                     self.cells[x][y] = row[x]
@@ -189,13 +192,3 @@ class Solver:
             return CellState.FILLED
         else:
             return x
-
-
-'''
-if __name__ == "__main__":
-    description = Description()
-    description.width = 2
-    description.height = 2
-    solver = Solver(description)
-    solver.solve_row([CellState.NOT_DECIDED], [1])
-'''

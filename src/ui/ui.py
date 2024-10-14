@@ -40,7 +40,9 @@ class UI(tk.Frame):
 
     def solve(self):
         description = Description()
-        description.from_matrices(self.rows.get_vectors(), self.cols.get_vectors())
+        width = len(self.cols.get_vectors())
+        height = len(self.rows.get_vectors())
+        description.from_matrices(self.rows.get_vectors(), self.cols.get_vectors(), width, height)
         solver = Solver(description)
         solver.verbose = False
         sol = solver.solve()
