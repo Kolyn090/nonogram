@@ -1,7 +1,4 @@
-import cv2
 from pytesseract import pytesseract
-from image_recognition.dimension_getter import Dimension_Getter
-from to_blackwhite import To_BlackWhite
 
 
 class OCR:

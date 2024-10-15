@@ -1,5 +1,5 @@
 import cv2
-from to_blackwhite import To_BlackWhite
+from src.image_recognition.to_blackwhite import To_BlackWhite
 
 
 class Dimension_Getter:

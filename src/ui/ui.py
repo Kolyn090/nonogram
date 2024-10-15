@@ -4,6 +4,7 @@ from paintboard import PaintBoard
 from description import Description
 from solver import Solver
 from scrollable_window import Scrollable_Window
+from src.image_recognition.main import get_two_vector_matrices
 
 
 class UI(tk.Frame):
@@ -38,6 +39,9 @@ class UI(tk.Frame):
         import_button = tk.Button(button_frame, text="Import", command=self.import_file)
         import_button.grid(row=3, column=0)
 
+        import_plus_button = tk.Button(button_frame, text="Import+", command=self.import_by_screenshot)
+        import_plus_button.grid(row=4, column=0)
+
     def solve(self):
         description = Description()
         width = len(self.cols.get_vectors())
@@ -69,6 +73,14 @@ class UI(tk.Frame):
     def import_file(self):
         description = Description()
         description.from_file('../save.non')
+        self.rows.load(description.row_descriptions)
+        self.cols.load(description.column_descriptions)
+        self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
+
+    def import_by_screenshot(self):
+        rows_vectors, cols_vectors, width, height = get_two_vector_matrices()
+        description = Description()
+        description.from_matrices(rows_vectors, cols_vectors, width, height)
         self.rows.load(description.row_descriptions)
         self.cols.load(description.column_descriptions)
         self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
