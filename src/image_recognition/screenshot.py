@@ -36,7 +36,7 @@ def capture_quicktime(output_file="quicktime_screenshot.png"):
 
 
 # Example usage:
-capture_quicktime()
+# capture_quicktime()
 
 # options = Quartz.kCGWindowListOptionOnScreenOnly
 # window_list = Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)

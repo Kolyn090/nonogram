@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import pytesseract
 
 
 class To_BlackWhite:
@@ -31,11 +32,11 @@ class To_BlackWhite:
             _, binary = cv2.threshold(image, 128, 255, cv2.THRESH_BINARY_INV)
 
             # Step 2: Detect vertical lines using a larger vertical kernel
-            vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 25))  # Kernel for line detection
+            vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 21))  # Kernel for line detection
             detected_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
 
             # Step 3: Dilate the detected lines to ensure full line coverage
-            dilated_lines = cv2.dilate(detected_lines, vertical_kernel, iterations=2)
+            dilated_lines = cv2.dilate(detected_lines, vertical_kernel, iterations=16)
 
             # Step 4: Subtract the detected lines from the original binary image
             lines_removed = cv2.subtract(binary, dilated_lines)
@@ -52,7 +53,7 @@ class To_BlackWhite:
                 detected_lines = cv2.morphologyEx(lines_removed, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
 
                 # Step 2: Dilate the detected lines to ensure full coverage
-                dilated_lines = cv2.dilate(detected_lines, horizontal_kernel, iterations=2)
+                dilated_lines = cv2.dilate(detected_lines, horizontal_kernel, iterations=16)
 
                 # Step 3: Subtract the detected lines from the original binary mask
                 lines_removed = cv2.subtract(binary, dilated_lines)
@@ -68,3 +69,10 @@ class To_BlackWhite:
 
         black_white_image = convert_to_black_white(image_path)
         self.image = remove_residual_lines(black_white_image, is_focusing_rows)
+
+
+if __name__ == '__main__':
+    rows_bw = To_BlackWhite('detection/cropped_image_rows.png', True, 'detection/cleaned_rows.png').image
+    cv2.imwrite('detection/rows_bw.png', rows_bw)
+    cols_bw = To_BlackWhite('detection/cropped_image_cols.png', False, 'detection/cleaned_cols.png').image
+    cv2.imwrite('detection/cols_bw.png', cols_bw)

@@ -1,4 +1,5 @@
 import cv2
+from to_blackwhite import To_BlackWhite
 
 
 class Dimension_Getter:
@@ -30,7 +31,6 @@ class Dimension_Getter:
                 else:
                     curr_x = pos_x
 
-            print(pos_lst)
             if image_name is not None:
                 # debug mode
                 img = cv2.imread(image_name)
@@ -71,7 +71,8 @@ class Dimension_Getter:
             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             # Filter out small contours (noise)
-            row_contours = [c for c in contours if cv2.boundingRect(c)[3] > 10]  # Height > 10 pixels
+            # Height > 10 pixels & Width > 10 pixels
+            row_contours = [c for c in contours if cv2.boundingRect(c)[3] > 10 and cv2.boundingRect(c)[2] > 10]
 
             # Sort the contours by their y-coordinate (top to bottom)
             row_contours = sorted(row_contours, key=lambda c: cv2.boundingRect(c)[1])
@@ -84,6 +85,19 @@ class Dimension_Getter:
                 pos_lst.append((x, y))
                 cv2.rectangle(debug_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+            cv2.imwrite(write_path.replace('.png', '_debug.png'), debug_image)
+
             return get_matrix_len(pos_lst, vib_x, vib_y)
 
         self.dim = get_dimension(image, vib_x, vib_y)
+
+
+if __name__ == '__main__':
+    rows_bw = To_BlackWhite('detection/cropped_image_rows.png', True, 'detection/cleaned_rows.png').image
+    rows_dim_getter = Dimension_Getter(rows_bw, 0, 2, 'detection/cleaned_rows.png', 'debug/rows.png')
+
+    cols_bw = To_BlackWhite('detection/cropped_image_cols.png', False, 'detection/cleaned_cols.png').image
+    cols_dim_getter = Dimension_Getter(cols_bw, 30, 5, 'detection/cleaned_cols.png', 'debug/cols.png')
+
+    print(rows_dim_getter.dim)
+    print(cols_dim_getter.dim)
