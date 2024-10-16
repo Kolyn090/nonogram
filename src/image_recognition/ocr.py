@@ -1,8 +1,9 @@
 from pytesseract import pytesseract
+import cv2
 
 
 class OCR:
-    def __init__(self, bw_img, factor, is_divided_horizontally=True):
+    def __init__(self, bw_img, width, height, is_divided_horizontally=True):
         def divide_image_vertically(image, factor=2):
             """
             Divides an image vertically by a given factor and saves the sections.
@@ -64,13 +65,38 @@ class OCR:
             return result
 
         if is_divided_horizontally:
-            self.section = divide_image_horizontally(bw_img, factor)
+            self.section = divide_image_horizontally(bw_img, height)
+            self.image_grid = []
+
+            # count = 0
+            for img in self.section:
+                num_row = divide_image_vertically(img, width)
+                # for piece in num_row:
+                #     cv2.imwrite(f'debug/grid/out_{count}.png', piece)
+                #     count += 1
+                self.image_grid.append(num_row)
         else:
-            self.section = divide_image_vertically(bw_img, factor)
+            self.section = divide_image_vertically(bw_img, width)
+            self.image_grid = []
+
+            # count = 0
+            for img in self.section:
+                num_row = divide_image_horizontally(img, height)
+                # for piece in num_row:
+                #     cv2.imwrite(f'debug/grid/out_{count}.png', piece)
+                #     count += 1
+                self.image_grid.append(num_row)
 
         custom_config = r'--oem 3 --psm 6 outputbase digits'
 
         self.lists = []
-        for img in self.section:
-            digits = pytesseract.image_to_string(img, config=custom_config)
-            self.lists.append([digit for digit in digits if digit in '0123456789'])
+        for image_list in self.image_grid:
+            row = []
+            for image in image_list:
+                digits = pytesseract.image_to_string(image, config=custom_config)
+                str_num = ''.join([str(digit) for digit in digits if digit in '0123456789'])
+                if str_num:
+                    num = int(str_num)
+                    row.append(num)
+            self.lists.append(row)
+        print(self.lists)

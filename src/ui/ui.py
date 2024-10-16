@@ -25,7 +25,7 @@ class UI(tk.Frame):
         self.cols.register_observer(self.paintboard)
 
         button_frame = tk.Frame(self)
-        button_frame.grid(row=0, column=2)
+        button_frame.grid(row=0, column=0)
 
         solve_button = tk.Button(button_frame, text="Solve", command=self.solve)
         solve_button.grid(row=0, column=0)
