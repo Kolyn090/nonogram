@@ -1,9 +1,8 @@
 import tkinter as tk
-from adjustable_matrix import Adjustable_Matrix
-from paintboard import PaintBoard
-from description import Description
-from solver import Solver
-from scrollable_window import Scrollable_Window
+from src.solve.solver import Solver
+from src.ui.paintboard import Paintboard
+from src.solve.description import Description
+from src.ui.adjustable_matrix import Adjustable_Matrix
 from src.image_recognition.main import get_two_vector_matrices
 
 
@@ -18,7 +17,7 @@ class UI(tk.Frame):
                                       entry_width=2, matrix_padx=0,
                                       max_value=20, notify_on_row_change=False)
         self.cols.grid(row=0, column=1)
-        self.paintboard = PaintBoard(self, pixel_size=47)
+        self.paintboard = Paintboard(self, pixel_size=47)
         self.paintboard.grid(row=1, column=1, pady=(40, 0))
 
         self.rows.register_observer(self.paintboard)
@@ -67,12 +66,12 @@ class UI(tk.Frame):
         save_content.append('\ncolumns')
         for vector in self.cols.get_vectors():
             save_content.append(','.join([str(component) for component in vector]))
-        with open('../save.non', 'w') as file:
+        with open('../solve/save.non', 'w') as file:
             file.writelines([f'{line}\n' for line in save_content])
 
     def import_file(self):
         description = Description()
-        description.from_file('../save.non')
+        description.from_file('../solve/save.non')
         self.rows.load(description.row_descriptions)
         self.cols.load(description.column_descriptions)
         self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
@@ -84,18 +83,3 @@ class UI(tk.Frame):
         self.rows.load(description.row_descriptions)
         self.cols.load(description.column_descriptions)
         self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
-
-
-if __name__ == '__main__':
-    # Create the main window
-    root = tk.Tk()
-    root.title("Nonogram!")
-    scrollable_window = Scrollable_Window(root)
-    scrollable_window.pack(fill="both", expand=True)
-    scrollable_window.canvas.config(width=1000, height=1000)
-
-    ui = UI(scrollable_window.scrollable_frame)
-    ui.pack()
-
-    # Run the application
-    root.mainloop()

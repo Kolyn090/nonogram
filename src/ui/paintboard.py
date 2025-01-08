@@ -1,9 +1,9 @@
-import tkinter as tk
 import numpy as np
+import tkinter as tk
 from matrix_observer import Matrix_Observer
 
 
-class PaintBoard(tk.Frame, Matrix_Observer):
+class Paintboard(tk.Frame, Matrix_Observer):
     def __init__(self, master=None, picture=None, pixel_size=20, **kwargs):
         super().__init__(master, **kwargs)
         self.pixel_size = pixel_size
@@ -174,6 +174,6 @@ class PaintBoard(tk.Frame, Matrix_Observer):
 if __name__ == '__main__':
     root = tk.Tk()
     root.title('Nonogram!')
-    paintboard = PaintBoard(root)
+    paintboard = Paintboard(root)
     paintboard.pack()
     root.mainloop()

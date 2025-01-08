@@ -1,6 +1,6 @@
 import tkinter as tk
-from adjustable_num_entry import Adjustable_Num_Entry
-from matrix_subject import Matrix_Subject
+from src.ui.matrix_subject import Matrix_Subject
+from src.ui.adjustable_num_entry import Adjustable_Num_Entry
 
 
 class Adjustable_Matrix(tk.Frame, Matrix_Subject):
