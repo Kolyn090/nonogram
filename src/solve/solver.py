@@ -5,6 +5,9 @@ from src.solve.cellstate import CellState
 from src.solve.solveresult import SolverResult
 
 
+# Original Java Version by fedimser: https://github.com/fedimser/nonolab
+# Translated by Kolyn090
+
 class Solver:
     def __init__(self, descr):
         self.width = descr.width

@@ -1,3 +1,7 @@
+# Original Java Version by fedimser: https://github.com/fedimser/nonolab
+# Translated by Kolyn090
+
+
 class BitArray:
     def __init__(self, length):
         self.length = length

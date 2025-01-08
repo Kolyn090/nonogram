@@ -1,6 +1,10 @@
 from src.solve.cellstate import CellState
 
 
+# Original Java Version by fedimser: https://github.com/fedimser/nonolab
+# Translated by Kolyn090
+
+
 class Solution:
     def __init__(self, cells):
         self.EMPTY_MARKER = '☐'

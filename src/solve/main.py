@@ -12,7 +12,7 @@ if __name__ == "__main__":
     description.from_file(save_dir)
     solver = Solver(description)
     solver.verbose = False
-    sol = solver.solve()
-    if sol is None:
+    solution = solver.solve()
+    if solution is None:
         print('No solution')
-    print(sol)
+    print(solution)
