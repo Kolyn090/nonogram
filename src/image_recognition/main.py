@@ -1,76 +1,53 @@
 import cv2
 from src.image_recognition.ocr import OCR
+from src.image_recognition.cropper import Cropper
 from src.image_recognition.binarizer import Binarizer
-from src.image_recognition.screenshot import capture_quicktime
+from src.image_recognition.screenshot import Screenshot
 from src.image_recognition.dimension_getter import Dimension_Getter
-from src.image_recognition.cropper import crop, crop_to_focus, extend_image
-
-
-def save_images(images, main_dir):
-    counter = 0
-    for img in images:
-        cv2.imwrite(main_dir + f'_{counter}.png', img)
-        counter += 1
-
-
-def balance_lists(lists):
-    # fill with 0 if a list is short
-    max_len = 0
-    for lst in lists:
-        if len(lst) > max_len:
-            max_len = len(lst)
-    for lst in lists:
-        while len(lst) < max_len:
-            lst.insert(0, 0)
-
-
-def to_int(lists):
-    for i in range(len(lists)):
-        lists[i] = [int(s) for s in lists[i]]
+from src.image_recognition.ui_position import top_matrix_region, bottom_matrix_region
 
 
 def get_two_vector_matrices():
-    capture_quicktime('../image_recognition/detection/quicktime_screenshot.png')
-    crop('../image_recognition/detection/quicktime_screenshot.png',
-         60, 780, 380, 1770,
-         '../image_recognition/detection/cropped_image_rows.png')
-    crop('../image_recognition/detection/quicktime_screenshot.png',
-         385, 460, 1370, 760,
-         '../image_recognition/detection/cropped_image_cols.png')
-    rows_bw = Binarizer('../image_recognition/detection/cropped_image_rows.png',
-                        True,
-                            '../image_recognition/detection/cleaned_rows.png').image
-    cols_bw = Binarizer('../image_recognition/detection/cropped_image_cols.png',
-                        False,
-                            '../image_recognition/detection/cleaned_cols.png').image
-    crop_to_focus('../image_recognition/detection/cleaned_rows.png',
-                  '../image_recognition/detection/focus_cleaned_rows.png')
-    crop_to_focus('../image_recognition/detection/cleaned_cols.png',
-                  '../image_recognition/detection/focus_cleaned_cols.png')
+    def balance_lists(lists):
+        # fill with 0 if a list is short
+        max_len = 0
+        for lst in lists:
+            if len(lst) > max_len:
+                max_len = len(lst)
+        for lst in lists:
+            while len(lst) < max_len:
+                lst.insert(0, 0)
 
-    rows_dim_getter = Dimension_Getter(rows_bw,
-                                       30, 12,
-                                       '../image_recognition/detection/focus_cleaned_rows.png',
-                                       '../image_recognition/debug/rows.png')
-    cols_dim_getter = Dimension_Getter(cols_bw,
-                                       30, 10,
-                                       '../image_recognition/detection/focus_cleaned_cols.png',
-                                       '../image_recognition/debug/cols.png')
+    def to_int(lists):
+        for i in range(len(lists)):
+            lists[i] = [int(s) for s in lists[i]]
 
-    extend_image('../image_recognition/detection/focus_cleaned_rows.png',
-                 '../image_recognition/detection/extend_focus_clean_rows.png',
-                 top=int(rows_dim_getter.gap_y / 2), bottom=int(rows_dim_getter.gap_y / 2),
-                 left=int(rows_dim_getter.gap_x / 2), right=int(rows_dim_getter.gap_x / 2))
-    extend_image('../image_recognition/detection/focus_cleaned_cols.png',
-                 '../image_recognition/detection/extend_focus_clean_cols.png',
-                 top=int(cols_dim_getter.gap_y / 2), bottom=int(cols_dim_getter.gap_y / 2),
-                 left=int(cols_dim_getter.gap_x / 2), right=int(cols_dim_getter.gap_x / 2))
+    screenshot = Screenshot("QuickTime Player").image
+    # screenshot = cv2.imread('test/screenshot/quicktime_screenshot.png')
 
-    row_img = cv2.imread('../image_recognition/detection/extend_focus_clean_rows.png')
-    col_img = cv2.imread('../image_recognition/detection/extend_focus_clean_cols.png')
+    cropper = Cropper()
+    matrix_region1 = cropper.crop(screenshot, top_matrix_region)
+    matrix_region2 = cropper.crop(screenshot, bottom_matrix_region)
 
-    rows_ocr = OCR(row_img, rows_dim_getter.dim[0], rows_dim_getter.dim[1], True)
-    cols_ocr = OCR(col_img, cols_dim_getter.dim[0], cols_dim_getter.dim[1], False)
+    rows_binary = Binarizer(matrix_region1, True).image
+    cols_binary = Binarizer(matrix_region2, False).image
+
+    rows_binary_trimmed = cropper.trim(rows_binary)
+    cols_binary_trimmed = cropper.trim(cols_binary)
+
+    rows_dim_getter = Dimension_Getter(rows_binary_trimmed, 30, 12)
+    cols_dim_getter = Dimension_Getter(cols_binary_trimmed, 30, 10)
+
+    rows_img = cropper.extend_image(rows_binary_trimmed,
+                                    top=int(rows_dim_getter.gap_y / 2), bottom=int(rows_dim_getter.gap_y / 2),
+                                    left=int(rows_dim_getter.gap_x / 2), right=int(rows_dim_getter.gap_x / 2))
+
+    cols_img = cropper.extend_image(cols_binary_trimmed,
+                                    top=int(cols_dim_getter.gap_y / 2), bottom=int(cols_dim_getter.gap_y / 2),
+                                    left=int(cols_dim_getter.gap_x / 2), right=int(cols_dim_getter.gap_x / 2))
+
+    rows_ocr = OCR(rows_img, rows_dim_getter.dim[0], rows_dim_getter.dim[1], True)
+    cols_ocr = OCR(cols_img, cols_dim_getter.dim[0], cols_dim_getter.dim[1], False)
 
     balance_lists(rows_ocr.lists)
     balance_lists(cols_ocr.lists)
@@ -81,46 +58,8 @@ def get_two_vector_matrices():
 
 
 if __name__ == '__main__':
-    capture_quicktime('detection/quicktime_screenshot.png')
-
-    crop('detection/quicktime_screenshot.png',
-         60, 780, 380, 1770,
-         'detection/cropped_image_rows.png')
-    crop('detection/quicktime_screenshot.png',
-         385, 460, 1370, 760,
-         'detection/cropped_image_cols.png')
-    rows_binary = Binarizer('detection/cropped_image_rows.png',
-                            True,
-                            'detection/cleaned_rows.png').image
-    cols_binary = Binarizer('detection/cropped_image_cols.png',
-                            False,
-                            'detection/cleaned_cols.png').image
-    crop_to_focus('detection/cleaned_rows.png', 'detection/focus_cleaned_rows.png')
-    crop_to_focus('detection/cleaned_cols.png', 'detection/focus_cleaned_cols.png')
-
-    rows_dim_getter = Dimension_Getter(rows_binary,
-                                       30, 12,
-                                       'detection/focus_cleaned_rows.png',
-                                       'debug/rows.png')
-    cols_dim_getter = Dimension_Getter(cols_binary,
-                                       30, 10,
-                                       'detection/focus_cleaned_cols.png',
-                                       'debug/cols.png')
-
-    extend_image('detection/focus_cleaned_rows.png',
-                 'detection/extend_focus_clean_rows.png',
-                 top=int(rows_dim_getter.gap_y/2), bottom=int(rows_dim_getter.gap_y/2),
-                 left=int(rows_dim_getter.gap_x/2), right=int(rows_dim_getter.gap_x/2))
-    extend_image('detection/focus_cleaned_cols.png',
-                 'detection/extend_focus_clean_cols.png',
-                 top=int(cols_dim_getter.gap_y/2), bottom=int(cols_dim_getter.gap_y/2),
-                 left=int(cols_dim_getter.gap_x/2), right=int(cols_dim_getter.gap_x/2))
-
-    row_img = cv2.imread('detection/extend_focus_clean_rows.png')
-    col_img = cv2.imread('detection/extend_focus_clean_cols.png')
-
-    rows_ocr = OCR(row_img, rows_dim_getter.dim[0], rows_dim_getter.dim[1], True)
-    cols_ocr = OCR(col_img, cols_dim_getter.dim[0], cols_dim_getter.dim[1], False)
-
-    # save_images(rows_ocr.section, 'debug/rows_divide/out')
-    # save_images(cols_ocr.section, 'debug/cols_divide/out')
+    result = get_two_vector_matrices()
+    print(result[0])
+    print(result[1])
+    print(result[2])
+    print(result[3])

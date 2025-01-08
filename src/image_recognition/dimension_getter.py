@@ -1,9 +1,11 @@
 import cv2
+from src.image_recognition.cropper import Cropper
 from src.image_recognition.binarizer import Binarizer
+from src.image_recognition.ui_position import top_matrix_region, bottom_matrix_region
 
 
 class Dimension_Getter:
-    def __init__(self, image, vib_x, vib_y, image_name=None, write_path='debug/img.png'):
+    def __init__(self, image, vib_x, vib_y):
         # The gap distances between each number
         self.gap_x = 0
         self.gap_y = 0
@@ -57,13 +59,6 @@ class Dimension_Getter:
 
             snapped_pos_lst = snap_positions()
 
-            if image_name is not None:
-                # debug mode
-                img = cv2.imread(image_name)
-                for pos in snapped_pos_lst:
-                    cv2.circle(img, pos, 2, (0, 0, 255), 2)
-                cv2.imwrite(write_path, img)
-
             return snapped_pos_lst
 
         def get_dimension(image, vib_x, vib_y):
@@ -96,8 +91,6 @@ class Dimension_Getter:
                 total_h += h
                 cv2.rectangle(debug_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-            cv2.imwrite(write_path.replace('.png', '_debug.png'), debug_image)
-
             snapped_pos_lst = get_snap_positions(pos_lst, vib_x, vib_y)
             all_x = set([pos[0] for pos in snapped_pos_lst])
             all_y = set([pos[1] for pos in snapped_pos_lst])
@@ -119,11 +112,24 @@ class Dimension_Getter:
 
 
 if __name__ == '__main__':
-    rows_bw = Binarizer('detection/cropped_image_rows.png', True, 'detection/cleaned_rows.png').image
-    rows_dim_getter = Dimension_Getter(rows_bw, 0, 2, 'detection/cleaned_rows.png', 'debug/rows.png')
+    screenshot = cv2.imread('test/screenshot/quicktime_screenshot.png')
+    cropper = Cropper()
+    matrix_region1 = cropper.crop(screenshot, top_matrix_region)
+    matrix_region2 = cropper.crop(screenshot, bottom_matrix_region)
+    rows_binary = Binarizer(matrix_region1, True).image
+    cols_binary = Binarizer(matrix_region2, False).image
 
-    cols_bw = Binarizer('detection/cropped_image_cols.png', False, 'detection/cleaned_cols.png').image
-    cols_dim_getter = Dimension_Getter(cols_bw, 30, 5, 'detection/cleaned_cols.png', 'debug/cols.png')
+    cv2.imwrite('test/dimension_getter/rows_binary.png', rows_binary)
+    cv2.imwrite('test/dimension_getter/cols_binary.png', cols_binary)
+
+    rows_binary_trimmed = cropper.trim(rows_binary)
+    cols_binary_trimmed = cropper.trim(cols_binary)
+
+    cv2.imwrite('test/dimension_getter/rows_binary_trimmed.png', rows_binary_trimmed)
+    cv2.imwrite('test/dimension_getter/cols_binary_trimmed.png', cols_binary_trimmed)
+
+    rows_dim_getter = Dimension_Getter(rows_binary_trimmed, 30, 12)
+    cols_dim_getter = Dimension_Getter(cols_binary_trimmed, 30, 10)
 
     print(rows_dim_getter.dim)
     print(cols_dim_getter.dim)
