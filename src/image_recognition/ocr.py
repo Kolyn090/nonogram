@@ -1,9 +1,15 @@
-from pytesseract import pytesseract
 import cv2
+import numpy as np
+from pytesseract import pytesseract
+from binarizer import Binarizer
 
 
 class OCR:
-    def __init__(self, bw_img, width, height, is_divided_horizontally=True):
+    def __init__(self,
+                 binary_image: np.ndarray,
+                 num_of_col: int,
+                 num_of_row: int,
+                 is_divided_horizontally=True):
         def divide_image_vertically(image, factor=2):
             """
             Divides an image vertically by a given factor and saves the sections.
@@ -37,10 +43,10 @@ class OCR:
 
         def divide_image_horizontally(image, factor=2):
             """
-            Divides an image vertically by a given factor and saves the sections.
+            Divides an image horizontally by a given factor and saves the sections.
             Args:
                 image: The image.
-                factor: The number of vertical splits to make.
+                factor: The number of horizontally splits to make.
             """
             # Get the height and width of the image
             height, width = image.shape[:2]
@@ -65,32 +71,24 @@ class OCR:
             return result
 
         if is_divided_horizontally:
-            self.section = divide_image_horizontally(bw_img, height)
-            self.image_grid = []
+            self._section = divide_image_horizontally(binary_image, num_of_row)
+            self._image_grid = []
 
-            # count = 0
-            for img in self.section:
-                num_row = divide_image_vertically(img, width)
-                # for piece in num_row:
-                #     cv2.imwrite(f'debug/grid/out_{count}.png', piece)
-                #     count += 1
-                self.image_grid.append(num_row)
+            for img in self._section:
+                num_row = divide_image_vertically(img, num_of_col)
+                self._image_grid.append(num_row)
         else:
-            self.section = divide_image_vertically(bw_img, width)
-            self.image_grid = []
+            self._section = divide_image_vertically(binary_image, num_of_col)
+            self._image_grid = []
 
-            # count = 0
-            for img in self.section:
-                num_row = divide_image_horizontally(img, height)
-                # for piece in num_row:
-                #     cv2.imwrite(f'debug/grid/out_{count}.png', piece)
-                #     count += 1
-                self.image_grid.append(num_row)
+            for img in self._section:
+                num_row = divide_image_horizontally(img, num_of_row)
+                self._image_grid.append(num_row)
 
         custom_config = r'--oem 3 --psm 6 outputbase digits'
 
         self.lists = []
-        for image_list in self.image_grid:
+        for image_list in self._image_grid:
             row = []
             for image in image_list:
                 digits = pytesseract.image_to_string(image, config=custom_config)
@@ -99,4 +97,11 @@ class OCR:
                     num = int(str_num)
                     row.append(num)
             self.lists.append(row)
-        print(self.lists)
+
+
+if __name__ == '__main__':
+    image_path = 'test/binarizer/rows_binary.png'
+    rows = cv2.imread(image_path)
+    rows = Binarizer(rows, True).image
+    ocr = OCR(rows, 5, 15)
+    print(ocr.lists)

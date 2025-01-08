@@ -1,14 +1,41 @@
 import cv2
+import numpy
 import numpy as np
 
 
-class To_BlackWhite:
-    def __init__(self, image_path, is_focusing_rows, write_path):
-        def convert_to_black_white(image_path):
-            """Detects black edges and filters small contours to only detect valid rows."""
-            # Load the image in grayscale
-            image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+def convert_to_grayscale(image):
+    """
+    Converts any OpenCV image (color, alpha, etc.) to grayscale.
 
+    Args:
+        image: The OpenCV image (numpy array).
+
+    Returns:
+        Grayscale image (numpy array).
+    """
+    # If the image has 3 channels (e.g., BGR), convert to grayscale
+    if len(image.shape) == 3 and image.shape[2] == 3:
+        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # If the image has 4 channels (e.g., BGRA), convert to grayscale
+    elif len(image.shape) == 3 and image.shape[2] == 4:
+        return cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+    # If already grayscale, return as-is
+    elif len(image.shape) == 2:
+        return image
+    else:
+        raise ValueError("Unsupported image format for grayscale conversion.")
+
+
+class Binarizer:
+    """
+    Takes a screenshot of digit matrix and extract the digits with binarization.
+
+    @:param image: The screenshot
+    @:param is_rows: Treat the matrix as Nonogram rows
+    """
+    def __init__(self, image: numpy.ndarray, is_rows: bool):
+        def binary_preprocess(image):
+            """Detects black edges and filters small contours to only detect valid rows."""
             # Apply the extreme contrast adjustment
             adjusted = cv2.convertScaleAbs(image, alpha=3, beta=-90)
 
@@ -25,7 +52,7 @@ class To_BlackWhite:
 
             return result
 
-        def remove_residual_lines(image, is_focusing_rows):
+        def remove_residual_lines(image, is_rows):
             """Removes residual lines using morphological operations."""
             # Step 1: Apply binary thresholding to separate text and lines
             _, binary = cv2.threshold(image, 128, 255, cv2.THRESH_BINARY_INV)
@@ -45,7 +72,7 @@ class To_BlackWhite:
                                                           (5, 1))  # Horizontal kernel to preserve text structure
             cleaned_image = cv2.morphologyEx(lines_removed, cv2.MORPH_CLOSE, horizontal_kernel, iterations=1)
 
-            if is_focusing_rows:
+            if is_rows:
                 """Perform an extra check to remove stubborn horizontal lines"""
                 # Step 1: Detect horizontal lines using a horizontal kernel
                 horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40, 1))  # Kernel for horizontal lines
@@ -62,16 +89,15 @@ class To_BlackWhite:
 
             # Invert the result to get the final cleaned image
             final_result = cv2.bitwise_not(cleaned_image)
-            cv2.imwrite(write_path, final_result)
 
             return final_result
 
-        black_white_image = convert_to_black_white(image_path)
-        self.image = remove_residual_lines(black_white_image, is_focusing_rows)
+        self.image = binary_preprocess(convert_to_grayscale(image))
+        self.image = remove_residual_lines(self.image, is_rows)
 
 
 if __name__ == '__main__':
-    rows_bw = To_BlackWhite('detection/cropped_image_rows.png', True, 'detection/cleaned_rows.png').image
-    cv2.imwrite('detection/rows_bw.png', rows_bw)
-    cols_bw = To_BlackWhite('detection/cropped_image_cols.png', False, 'detection/cleaned_cols.png').image
-    cv2.imwrite('detection/cols_bw.png', cols_bw)
+    rows_binary = Binarizer(cv2.imread('test/binarizer/cropped_image_rows.png'), True).image
+    cv2.imwrite('test/binarizer/rows_binary.png', rows_binary)
+    cols_binary = Binarizer(cv2.imread('test/binarizer/cropped_image_cols.png'), False).image
+    cv2.imwrite('test/binarizer/cols_binary.png', cols_binary)

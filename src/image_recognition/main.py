@@ -1,8 +1,8 @@
 import cv2
-from src.image_recognition.to_blackwhite import To_BlackWhite
-from src.image_recognition.dimension_getter import Dimension_Getter
 from src.image_recognition.ocr import OCR
+from src.image_recognition.binarizer import Binarizer
 from src.image_recognition.screenshot import capture_quicktime
+from src.image_recognition.dimension_getter import Dimension_Getter
 from src.image_recognition.cropper import crop, crop_to_focus, extend_image
 
 
@@ -37,11 +37,11 @@ def get_two_vector_matrices():
     crop('../image_recognition/detection/quicktime_screenshot.png',
          385, 460, 1370, 760,
          '../image_recognition/detection/cropped_image_cols.png')
-    rows_bw = To_BlackWhite('../image_recognition/detection/cropped_image_rows.png',
-                            True,
+    rows_bw = Binarizer('../image_recognition/detection/cropped_image_rows.png',
+                        True,
                             '../image_recognition/detection/cleaned_rows.png').image
-    cols_bw = To_BlackWhite('../image_recognition/detection/cropped_image_cols.png',
-                            False,
+    cols_bw = Binarizer('../image_recognition/detection/cropped_image_cols.png',
+                        False,
                             '../image_recognition/detection/cleaned_cols.png').image
     crop_to_focus('../image_recognition/detection/cleaned_rows.png',
                   '../image_recognition/detection/focus_cleaned_rows.png')
@@ -82,26 +82,27 @@ def get_two_vector_matrices():
 
 if __name__ == '__main__':
     capture_quicktime('detection/quicktime_screenshot.png')
+
     crop('detection/quicktime_screenshot.png',
          60, 780, 380, 1770,
          'detection/cropped_image_rows.png')
     crop('detection/quicktime_screenshot.png',
          385, 460, 1370, 760,
          'detection/cropped_image_cols.png')
-    rows_bw = To_BlackWhite('detection/cropped_image_rows.png',
+    rows_binary = Binarizer('detection/cropped_image_rows.png',
                             True,
                             'detection/cleaned_rows.png').image
-    cols_bw = To_BlackWhite('detection/cropped_image_cols.png',
+    cols_binary = Binarizer('detection/cropped_image_cols.png',
                             False,
                             'detection/cleaned_cols.png').image
     crop_to_focus('detection/cleaned_rows.png', 'detection/focus_cleaned_rows.png')
     crop_to_focus('detection/cleaned_cols.png', 'detection/focus_cleaned_cols.png')
 
-    rows_dim_getter = Dimension_Getter(rows_bw,
+    rows_dim_getter = Dimension_Getter(rows_binary,
                                        30, 12,
                                        'detection/focus_cleaned_rows.png',
                                        'debug/rows.png')
-    cols_dim_getter = Dimension_Getter(cols_bw,
+    cols_dim_getter = Dimension_Getter(cols_binary,
                                        30, 10,
                                        'detection/focus_cleaned_cols.png',
                                        'debug/cols.png')

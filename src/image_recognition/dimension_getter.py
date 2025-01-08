@@ -1,5 +1,5 @@
 import cv2
-from src.image_recognition.to_blackwhite import To_BlackWhite
+from src.image_recognition.binarizer import Binarizer
 
 
 class Dimension_Getter:
@@ -119,10 +119,10 @@ class Dimension_Getter:
 
 
 if __name__ == '__main__':
-    rows_bw = To_BlackWhite('detection/cropped_image_rows.png', True, 'detection/cleaned_rows.png').image
+    rows_bw = Binarizer('detection/cropped_image_rows.png', True, 'detection/cleaned_rows.png').image
     rows_dim_getter = Dimension_Getter(rows_bw, 0, 2, 'detection/cleaned_rows.png', 'debug/rows.png')
 
-    cols_bw = To_BlackWhite('detection/cropped_image_cols.png', False, 'detection/cleaned_cols.png').image
+    cols_bw = Binarizer('detection/cropped_image_cols.png', False, 'detection/cleaned_cols.png').image
     cols_dim_getter = Dimension_Getter(cols_bw, 30, 5, 'detection/cleaned_cols.png', 'debug/cols.png')
 
     print(rows_dim_getter.dim)

@@ -1,6 +1,6 @@
-from PIL import Image
 import cv2
 import numpy as np
+from PIL import Image
 
 
 def crop(image_path, left, upper, right, lower, write_path):

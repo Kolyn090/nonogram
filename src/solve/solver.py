@@ -1,8 +1,8 @@
-from cellstate import CellState
-from solveresult import SolverResult
-from util.bitarray import BitArray
-from solution import Solution
 import copy
+from src.util.bitarray import BitArray
+from src.solve.solution import Solution
+from src.solve.cellstate import CellState
+from src.solve.solveresult import SolverResult
 
 
 class Solver:
@@ -185,7 +185,8 @@ class Solver:
     def clone_cells(self):
         return copy.deepcopy(self.cells)
 
-    def flip_state(self, x):
+    @staticmethod
+    def flip_state(x):
         if x == CellState.FILLED:
             return CellState.EMPTY
         elif x == CellState.EMPTY:

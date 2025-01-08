@@ -1,4 +1,4 @@
-from cellstate import CellState
+from src.solve.cellstate import CellState
 
 
 class Solution:
