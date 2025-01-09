@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from pytesseract import pytesseract
-from binarizer import Binarizer
+from src.image_recognition.binarizer import Binarizer
 
 
 class OCR:
