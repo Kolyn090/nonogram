@@ -132,31 +132,47 @@ class Adjustable_Matrix(tk.Frame, Matrix_Subject):
                 self.matrix[i][j].set_to(0)
 
     def load(self, matrix):
+        def len_of_longest_row(matrix):
+            result = 0
+            for row in matrix:
+                if len(row) > result:
+                    result = len(row)
+            return result
+
+        num_of_rows = len(matrix)
+        num_of_cols = len_of_longest_row(matrix)
+
         if self.notify_on_row_change:
-            while len(self.matrix) < len(matrix):
+            while self.rows < num_of_rows:
                 self.add_row()
-            while len(self.matrix) > len(matrix):
+            while self.rows > num_of_rows:
                 self.remove_row()
-            while len(self.matrix[0]) < len(matrix[0]):
+            while self.columns < num_of_cols:
                 self.add_column()
-            while len(self.matrix[0]) > len(matrix[0]):
+            while self.columns > num_of_cols:
                 self.remove_column()
-        else:
-            while len(self.matrix) < len(matrix[0]):
+        else:  # The transpose
+            while self.rows < num_of_cols:
                 self.add_row()
-            while len(self.matrix) > len(matrix[0]):
+            while self.rows > num_of_cols:
                 self.remove_row()
-            while len(self.matrix[0]) < len(matrix):
+            while self.columns < num_of_rows:
                 self.add_column()
-            while len(self.matrix[0]) > len(matrix):
+            while self.columns > num_of_rows:
                 self.remove_column()
 
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.notify_on_row_change:
-                    self.matrix[i][j].set_to(matrix[i][j])
+                    if 0 <= i < len(matrix) and 0 <= j < len(matrix[i]):
+                        self.matrix[i][j].set_to(matrix[i][j])
+                    else:
+                        self.matrix[i][j].set_to(0)
                 else:
-                    self.matrix[i][j].set_to(matrix[j][i])
+                    if 0 <= j < len(matrix) and 0 <= i < len(matrix[j]):
+                        self.matrix[i][j].set_to(matrix[j][i])
+                    else:
+                        self.matrix[i][j].set_to(0)
 
 
 if __name__ == '__main__':

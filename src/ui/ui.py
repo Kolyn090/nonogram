@@ -38,7 +38,7 @@ class UI(tk.Frame):
         import_button = tk.Button(button_frame, text="Import", command=self.import_file)
         import_button.grid(row=3, column=0)
 
-        import_plus_button = tk.Button(button_frame, text="Import+", command=self.import_by_screenshot)
+        import_plus_button = tk.Button(button_frame, text="Experimental", command=self.import_by_screenshot)
         import_plus_button.grid(row=4, column=0)
 
     def solve(self):

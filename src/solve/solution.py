@@ -3,12 +3,14 @@ from src.solve.cellstate import CellState
 
 # Original Java Version by fedimser: https://github.com/fedimser/nonolab
 # Translated by Kolyn090
+EMPTY_MARKER = '☐'
+FILL_MARKER = '☒'
 
 
 class Solution:
     def __init__(self, cells):
-        self.EMPTY_MARKER = '☐'
-        self.FILL_MARKER = '☒'
+        self.EMPTY_MARKER = EMPTY_MARKER
+        self.FILL_MARKER = FILL_MARKER
         self.width = len(cells)
         self.height = len(cells[0])
         self.pixels = []

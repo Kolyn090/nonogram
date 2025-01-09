@@ -4,7 +4,7 @@ from src.ui.scrollable_window import Scrollable_Window
 
 
 def main():
-    # create the main window
+    # Create the main window
     root = tk.Tk()
     root.title("Nonogram!")
     scrollable_window = Scrollable_Window(root)
@@ -14,7 +14,7 @@ def main():
     ui = UI(scrollable_window.scrollable_frame)
     ui.pack()
 
-    # run the application
+    # Run the application
     root.mainloop()
 
 
