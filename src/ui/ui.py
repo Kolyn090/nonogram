@@ -1,14 +1,19 @@
+import cv2
 import tkinter as tk
 from src.solve.solver import Solver
 from src.ui.paintboard import Paintboard
-from src.solve.description import Description
 from src.ui.adjustable_matrix import Adjustable_Matrix
 from src.image_recognition.main import get_two_vector_matrices
+from src.solve.description import Description
+from src.draw.binary_to_ascii_art import Binary_To_Ascii_Art
+from src.draw.pixels_to_description import Pixels_To_Description
 
 
 class UI(tk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
+        self.draw_mode = False
+
         self.rows = Adjustable_Matrix(self, rows=10, columns=2,
                                       entry_width=2, matrix_pady=10,
                                       max_value=20, notify_on_row_change=True)
@@ -38,8 +43,21 @@ class UI(tk.Frame):
         import_button = tk.Button(button_frame, text="Import", command=self.import_file)
         import_button.grid(row=3, column=0)
 
-        import_plus_button = tk.Button(button_frame, text="Experimental", command=self.import_by_screenshot)
-        import_plus_button.grid(row=4, column=0)
+        experimental_button = tk.Button(button_frame, text="Experimental", command=self.import_by_screenshot)
+        experimental_button.grid(row=4, column=0)
+
+        self.draw_text = "Draw"
+        self.stop_draw_text = "Stop draw"
+        self.draw_button = tk.Button(button_frame, text=self.draw_text, command=self.press_draw_button)
+        self.draw_button.grid(row=5, column=0)
+
+        self.finish_button = tk.Button(button_frame, text="Finish", command=self.finish_draw)
+        self.finish_button.grid(row=6, column=0)
+        self.finish_button.config(state=tk.DISABLED)
+
+        self.default_buttons = [solve_button, reset_button, export_button,
+                                import_button, experimental_button, self.draw_button]
+        self.draw_mode_buttons = [reset_button, self.draw_button, self.finish_button]
 
     def solve(self):
         description = Description()
@@ -57,7 +75,7 @@ class UI(tk.Frame):
     def reset(self):
         self.rows.set_to_zero()
         self.cols.set_to_zero()
-        self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
+        self.paintboard.reset()
 
     def export_file(self):
         save_content = [f'width {self.rows.rows}', f'height {self.cols.columns}\n\nrows']
@@ -74,7 +92,7 @@ class UI(tk.Frame):
         description.from_file('../solve/save.non')
         self.rows.load(description.row_descriptions)
         self.cols.load(description.column_descriptions)
-        self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
+        self.paintboard.reset()
 
     def import_by_screenshot(self):
         rows_vectors, cols_vectors, width, height = get_two_vector_matrices()
@@ -82,4 +100,39 @@ class UI(tk.Frame):
         description.from_matrices(rows_vectors, cols_vectors, width, height)
         self.rows.load(description.row_descriptions)
         self.cols.load(description.column_descriptions)
-        self.paintboard.render_picture([[False for _ in range(self.rows.rows)] for _ in range(self.cols.columns)])
+        self.paintboard.reset()
+
+    def press_draw_button(self):
+        def enter_draw_mode():
+            self.draw_mode = True
+            self.paintboard.start_draw_mode()
+            self.draw_button.config(text=self.stop_draw_text)
+            for i in range(len(self.default_buttons)):
+                self.default_buttons[i].config(state=tk.DISABLED)
+            for i in range(len(self.draw_mode_buttons)):
+                self.draw_mode_buttons[i].config(state=tk.NORMAL)
+
+        def exit_draw_mode():
+            self.draw_mode = False
+            self.paintboard.end_draw_mode()
+            self.draw_button.config(text=self.draw_text)
+            for i in range(len(self.draw_mode_buttons)):
+                self.draw_mode_buttons[i].config(state=tk.DISABLED)
+            for i in range(len(self.default_buttons)):
+                self.default_buttons[i].config(state=tk.NORMAL)
+
+        if not self.draw_mode:
+            enter_draw_mode()
+        else:
+            exit_draw_mode()
+        self.paintboard.reset()
+
+    def finish_draw(self):
+        binary_image = self.paintboard.get_binary_image()
+        cv2.imwrite('test.png', binary_image)
+        btaa = Binary_To_Ascii_Art(binary_image)
+        ptd = Pixels_To_Description(btaa.pixels)
+        description = ptd.description
+        self.rows.load(description.row_descriptions)
+        self.cols.load(description.column_descriptions)
+        self.paintboard.render_picture(btaa.pixels)

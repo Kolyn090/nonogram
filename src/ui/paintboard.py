@@ -1,6 +1,7 @@
 import numpy as np
 import tkinter as tk
-from matrix_observer import Matrix_Observer
+from src.ui.matrix_observer import Matrix_Observer
+from src.ui.draw_mode.draw_mode import Draw_Mode
 
 
 class Paintboard(tk.Frame, Matrix_Observer):
@@ -16,9 +17,10 @@ class Paintboard(tk.Frame, Matrix_Observer):
 
         self.default_pixel_color = '#FFFFFF'
         self.default_pixel_rgb = list(self.hex_to_rgb(self.default_pixel_color))
+        self.paint_rgb = list(self.hex_to_rgb('#000000'))
         self.default_grid_color = '#D3D3D3'
 
-        self.pixels = np.zeros([self.grid_width, self.grid_height, 3], dtype=np.uint8)
+        self.pixels = np.full([self.grid_width, self.grid_height, 3], 255, dtype=np.uint8)
         # Track whether a grid has color
         self.pixel_ids = [[None for _ in range(self.grid_width)]
                           for _ in range(self.grid_height)]
@@ -27,7 +29,6 @@ class Paintboard(tk.Frame, Matrix_Observer):
                                 width=self.pixel_size * self.grid_width,
                                 height=self.pixel_size * self.grid_height,
                                 bg=self.default_pixel_color)
-
         self.draw_grid()
 
         if picture:
@@ -36,6 +37,10 @@ class Paintboard(tk.Frame, Matrix_Observer):
 
         self.draw_bold_lines()
         self.canvas.grid(row=0, column=0, sticky='nsew')
+
+        self.draw_mode = Draw_Mode(self)
+        self.canvas.bind('<Button-1>', self.draw_mode.handle_click)
+        self.canvas.pack()
 
     def draw_grid(self):
         # Draw the grid lines for a rectangular grid
@@ -104,19 +109,23 @@ class Paintboard(tk.Frame, Matrix_Observer):
         y1 = col * self.pixel_size
         x2 = x1 + self.pixel_size
         y2 = y1 + self.pixel_size
-        color = self.rgb_to_hex(self.pixels[row][col])
+        if not np.array_equal(self.pixels[row][col], self.default_pixel_rgb):
+            color = self.rgb_to_hex(self.pixels[row][col])
+        else:
+            color = None
 
         # If a pixel is already drawn, delete it before creating a new one
         if self.pixel_ids[row][col] is not None:
             self.canvas.delete(self.pixel_ids[row][col])
-        # Draw the rectangle (pixel) and store its ID for future reference
-        self.pixel_ids[row][col] = self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline=color)
+        if color:
+            # Draw the rectangle (pixel) and store its ID for future reference
+            self.pixel_ids[row][col] = self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline=color)
 
     def draw_picture(self):
         for x in range(len(self.picture)):
             for y in range(len(self.picture[x])):
                 if self.picture[x][y]:
-                    self.pixels[x][y] = list(self.hex_to_rgb('#000000'))
+                    self.pixels[x][y] = self.paint_rgb
                     self.paint_pixel(x, y)
 
     def hex_to_rgb(self, hexcode):
@@ -141,7 +150,7 @@ class Paintboard(tk.Frame, Matrix_Observer):
         self.grid_width = width
         self.grid_height = height
 
-        self.pixels = np.zeros([self.grid_width, self.grid_height, 3], dtype=np.uint8)
+        self.pixels = np.full([self.grid_width, self.grid_height, 3], 255, dtype=np.uint8)
         # Track whether a grid has color
         self.pixel_ids = [[None for _ in range(self.grid_height)]
                           for _ in range(self.grid_width)]
@@ -155,6 +164,8 @@ class Paintboard(tk.Frame, Matrix_Observer):
 
         self.draw_bold_lines()
         self.canvas.grid(row=0, column=0, sticky='nsew')
+        self.canvas.bind('<Button-1>', self.draw_mode.handle_click)
+        self.canvas.pack()
 
     def render_picture(self, picture):
         if picture:
@@ -169,6 +180,25 @@ class Paintboard(tk.Frame, Matrix_Observer):
 
     def update_column(self, newlen):
         self.adjust_size(self.grid_width, newlen)
+
+    def start_draw_mode(self):
+        self.draw_mode.start_draw_mode()
+
+    def end_draw_mode(self):
+        self.draw_mode.end_draw_mode()
+
+    def get_binary_image(self):
+        return self.draw_mode.get_binary_image()
+
+    def reset(self):
+        for row in range(len(self.pixel_ids)):
+            for col in range(len(self.pixel_ids[row])):
+                if self.pixel_ids[row][col] is not None:
+                    self.canvas.delete(self.pixel_ids[row][col])
+        self.pixels = np.full([self.grid_width, self.grid_height, 3], 255, dtype=np.uint8)
+        self.picture = None
+        self.canvas.bind('<Button-1>', self.draw_mode.handle_click)
+        self.canvas.pack()
 
 
 if __name__ == '__main__':
