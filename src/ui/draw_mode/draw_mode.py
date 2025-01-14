@@ -35,7 +35,7 @@ class Draw_Mode:
 
         # image = np.flip(np.rot90(make_binary(self.paintboard.pixels), k=1), axis=0)
         image = make_binary(self.paintboard.pixels)
-        # cv2.imwrite('drawing.png', image)
+        cv2.imwrite('drawing.png', np.flip(np.rot90(make_binary(self.paintboard.pixels), k=1), axis=0))
         return image
 
     def start_draw_mode(self):

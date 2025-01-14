@@ -1,7 +1,7 @@
 import cv2
 from src.image_recognition.cropper import Cropper
 from src.image_recognition.binarizer import Binarizer
-from src.image_recognition.ui_position import top_matrix_region, bottom_matrix_region
+from src.image_recognition.ui_position import bottom_matrix_region, top_matrix_region
 
 
 class Dimension_Getter:
@@ -114,8 +114,8 @@ class Dimension_Getter:
 if __name__ == '__main__':
     screenshot = cv2.imread('test/screenshot/quicktime_screenshot.png')
     cropper = Cropper()
-    matrix_region1 = cropper.crop(screenshot, top_matrix_region)
-    matrix_region2 = cropper.crop(screenshot, bottom_matrix_region)
+    matrix_region1 = cropper.crop(screenshot, bottom_matrix_region)
+    matrix_region2 = cropper.crop(screenshot, top_matrix_region)
     rows_binary = Binarizer(matrix_region1, True).image
     cols_binary = Binarizer(matrix_region2, False).image
 
