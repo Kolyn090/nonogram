@@ -26,7 +26,7 @@ def get_two_vector_matrices():
             lists[i] = [int(s) for s in lists[i]]
 
     # screenshot = Screenshot("QuickTime Player").image
-    screenshot = cv2.imread(script_dir + '/test/screenshot/puzzle-nonograms.png')
+    screenshot = cv2.imread(script_dir + '/test/screenshot/quicktime_screenshot.png')
 
     cropper = Cropper()
     matrix_region1 = cropper.crop(screenshot, bottom_matrix_region)
@@ -35,8 +35,8 @@ def get_two_vector_matrices():
     rows_binary = Binarizer(matrix_region1, True).image
     cols_binary = Binarizer(matrix_region2, False).image
 
-    rows_binary_trimmed = cropper.trim(rows_binary, min_black_blob_size=50)
-    cols_binary_trimmed = cropper.trim(cols_binary, min_black_blob_size=50)
+    rows_binary_trimmed = cropper.trim(rows_binary, min_black_blob_size=100)
+    cols_binary_trimmed = cropper.trim(cols_binary, min_black_blob_size=100)
 
     rows_dim_getter = Dimension_Getter(rows_binary_trimmed, 30, 12)
     cols_dim_getter = Dimension_Getter(cols_binary_trimmed, 30, 10)
