@@ -1,6 +1,8 @@
+import platform
 import cv2
-import mss
-import Quartz
+if platform.system() == "Darwin":
+    import mss
+    import Quartz
 import numpy as np
 
 

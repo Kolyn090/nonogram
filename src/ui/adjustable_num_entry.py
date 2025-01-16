@@ -14,7 +14,7 @@ class Adjustable_Num_Entry(tk.Frame):
             "Custom.TSpinbox",
             arrowsize=15,  # Adjust the size of the arrows if desired
             background="gray",  # Background for the entry and arrows
-            foreground="white",  # Text color
+            foreground="black",  # Text color
             fieldbackground="lightgray"  # Background of the entry area (field)
         )
 
